@@ -137,10 +137,6 @@ include_once 'config.php';
                 }
             });
         }
-
-        // async function delGroup(id){
-
-        // }
     </script>
 </body>
 </html>

@@ -34,7 +34,7 @@ if($action==='saveItem'){
     $name = $_POST['name'];
 
     $sql = sprintf("INSERT INTO `groups` (`id`, `name`, `parent`, `status`, `add_time`, `edit_time`) 
-    VALUES (NULL, %s, NULL, '1', NOW(), NOW());",
+    VALUES (NULL, '%s', NULL, '1', NOW(), NOW());",
         $dbi->real_escape_string($name)
     );
 
