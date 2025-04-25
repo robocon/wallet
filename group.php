@@ -29,7 +29,7 @@ include_once 'config.php';
                     ?>
                     <tr>
                         <td>
-                            <a href="javascript:void(0);"><?php echo $row['name']; ?></a>
+                            <a href="javascript:void(0);" onclick="editGroup('<?=$row['id'];?>','<?=$row['name'];?>')"><?=$row['name'];?></a>
                         </td>
                         <td width="5%">
                             <a href="javascript:void(0);" onclick="delGroupBtn('<?=$row['id'];?>')">🗑️</a>
@@ -49,27 +49,46 @@ include_once 'config.php';
     </div>
     <script>
         async function addFormGroup(){
-            const inputValue = '';
-            const { value: name } = await Swal.fire({
-                title: "ชื่อกลุ่ม",
-                input: "text",
-                inputValue,
-                showCancelButton: true,
-                cancelButtonText: "ยกเลิก",
-                confirmButtonText: "บันทึก",
-                inputValidator: (value) => {
-                    if (!value) {
-                        return "ใส่ชื่อด้วยจ้า";
-                    }
-                }
-            });
-            if (name) {
-                
+            const name = await loadForm();
+            if (name!==undefined) {
+
                 let formData = new FormData();
                 formData.append('name', name);
                 formData.append('action', 'saveGroup');
+
                 sendPost(formData).then((res)=>{
-                    
+                    if(res.status===200){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'เรียบร้อย',
+                            text: res.message,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: res.message,
+                        });
+                    }
+                });
+
+            }
+        }
+
+        async function editGroup(id, inputValue){
+            const name = await loadForm(inputValue);
+            if(name!==undefined){
+
+                let formData = new FormData();
+                formData.append('name', name);
+                formData.append('id', id);
+                formData.append('action', 'updateGroup');
+
+                sendPost(formData).then((res)=>{
                     if(res.status===200){
                         Swal.fire({
                             icon: 'success',
@@ -91,8 +110,26 @@ include_once 'config.php';
             }
         }
 
+        async function loadForm(inputValue = ''){
+            const { value: name } = await Swal.fire({
+                title: "ชื่อกลุ่ม",
+                input: "text",
+                inputValue,
+                showCancelButton: true,
+                cancelButtonText: "ยกเลิก",
+                confirmButtonText: "บันทึก",
+                allowOutsideClick: false,
+                inputValidator: (value) => {
+                    if (!value) {
+                        return "ใส่ชื่อด้วยจ้า";
+                    }
+                }
+            });
+            return name;
+        }
+
         async function sendPost(formData){
-            const response = await fetch('save.php', {
+            const response = await fetch('saveGroup.php', {
                 method: 'POST',
                 body: formData
             });

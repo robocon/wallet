@@ -28,10 +28,15 @@
             </div>
             <div class="mb-3">
                 <input class="form-check-input" type="checkbox" value="" id="checkDefault" onclick="displayDate()">
-                <label class="form-check-label" for="checkDefault">เปลี่ยนวันที่</label>
+                <label class="form-check-label" for="checkDefault">กำหนดวันที่</label>
             </div>
             <div class="mb-3" id="dateInputContainer" style="display:none;">
-                <input type="date" class="form-control" name="date" id="dateInput">
+                <div class="mb-3">
+                    <input type="date" class="form-control" name="date" id="dateInput">
+                </div>
+                <div class="mb-3">
+                    <input type="time" class="form-control" name="time" id="timeInput">
+                </div>
             </div>
             <div class="mb-3 d-grid gap-2">
                 <button type="submit" class="btn btn-primary">บันทึก</button>

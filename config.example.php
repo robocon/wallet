@@ -9,6 +9,7 @@ $dbi = new mysqli(HOST, USER, PASS, DB, PORT);
 if ($dbi->connect_error) {
     die("Connection failed: " . $dbi->connect_error);
 }
+$dbi->query("SET NAMES utf8mb4");
 
 function dump($t){
     echo "<pre>";
