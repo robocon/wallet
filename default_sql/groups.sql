@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50651
 File Encoding         : 65001
 
-Date: 2025-04-25 11:09:17
+Date: 2025-04-25 11:33:42
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -27,4 +27,4 @@ CREATE TABLE `groups` (
   `add_time` datetime DEFAULT NULL,
   `edit_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -4,6 +4,7 @@ include_once 'config.php';
 $action = sprintf($_POST['action']);
 if($action==='saveItem'){
     $money = $_POST['money'];
+    $detail = $_POST['detail'];
     $group = $_POST['group'];
     $date = $_POST['date'];
     $time = $_POST['time'];
@@ -13,9 +14,10 @@ if($action==='saveItem'){
         $time = date('H:i:s');
     }
 
-    $sql = sprintf("INSERT INTO `money` (`id`, `money`, `group_id`, `date`, `time`, `add_time`, `edit_time`) 
+    $sql = sprintf("INSERT INTO `money` (`id`, `money`, `detail`, `group_id`, `date`, `time`, `add_time`, `edit_time`) 
     VALUES (NULL, '%s', '%s', '%s', '%s', NOW(), NOW())", 
-        $dbi->real_escape_string($money), 
+        $dbi->real_escape_string($money),
+        $dbi->real_escape_string($detail),
         $dbi->real_escape_string($group),
         $dbi->real_escape_string($date),
         $dbi->real_escape_string($time)
@@ -25,6 +27,19 @@ if($action==='saveItem'){
         $res = array('status'=>400, 'message'=>'ไม่สามารถบันทึกข้อมูลได้! '.$dbi->error);
     }else{
         $res = array('status'=>200, 'message'=>'บันทึกข้อมูลเรียบร้อยแล้ว!');
+    }
+
+    echo json_encode($res);
+    exit;
+}elseif ($action==='delItem') { 
+    $id = $_POST['id'];
+
+    $sql = sprintf("DELETE FROM `money` WHERE `id` = '%s'", $dbi->real_escape_string($id));
+    $q = $dbi->query($sql);
+    if($q===false){
+        $res = array('status'=>400, 'message'=>'ไม่สามารถดำเนินการได้! '.$dbi->error);
+    }else{
+        $res = array('status'=>200, 'message'=>'ลบข้อมูลเรียบร้อย!');
     }
 
     echo json_encode($res);

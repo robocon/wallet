@@ -1,3 +1,6 @@
+<?php
+include_once 'config.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,20 +14,42 @@
 </head>
 <body>
     <?php include 'nav.php'; ?>
+    <style>
+        label:hover{
+            cursor: pointer;
+        }
+    </style>
     <div class="container" style="margin-top:5em;">
-        <form action="javascript:void(0);" method="post" id="formInput">
+        <form action="javascript:void(0);" method="post" id="formInput" class="mb-5">
             <div class="mb-3">
                 <label for="moneyInput" class="form-label">เงิน</label>
-                <input type="money" class="form-control" id="moneyInput" name="money" placeholder="99.99">
+                <input type="number" class="form-control" id="moneyInput" name="money" placeholder="99.99">
             </div>
             <div class="mb-3">
+                <input type="text" class="form-control" id="detailInput" name="detail" placeholder="รายละเอียด">
+            </div>
+            <div class="mb-3">
+            <?php
+            $sql = "SELECT `id`,`name` FROM `groups` WHERE `status` = '1' ORDER BY `id` ASC";
+            $q = $dbi->query($sql);
+            if($q->num_rows > 0){
+                ?>
                 <label for="moneyInput" class="form-label">กลุ่ม</label>
                 <select class="form-select" id="groupSelect" name="group">
                     <option value="">เลือกกลุ่ม</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
-                    <option value="4">Four</option>
+                    <?php
+                    while($a = $q->fetch_assoc()){
+                        ?><option value="<?=$a['id'];?>"><?=$a['name'];?></option><?php
+                    }
+                    ?>
                 </select>
+                <?php
+            }else{
+                ?>
+                <div class="alert alert-warning" role="alert">กรุณาสร้างกลุ่มให้เรียบร้อยก่อนใช้งาน</div>
+                <?php
+            }
+            ?>
             </div>
             <div class="mb-3">
                 <input class="form-check-input" type="checkbox" value="" id="checkDefault" onclick="displayDate()">
@@ -43,6 +68,45 @@
                 <input type="hidden" name="action" value="saveItem">
             </div>
         </form>
+
+        <div class="mb-2">
+            <h3>รายการวันนี้</h3>
+            <?php
+            $currentDate = date('Y-m-d');
+            $sql = "SELECT a.`id`,a.`money`,b.`name` FROM 
+            (SELECT `id`,`money`,`group_id` FROM `money` WHERE `date` = '$currentDate' ORDER BY `id` DESC ) AS a 
+            LEFT JOIN `groups` AS b ON a.`group_id` = b.`id` ";
+            $q = $dbi->query($sql);
+            if($q->num_rows > 0){
+                ?>
+                <table class="table">
+                    <tbody>
+                        <?php
+                        $total = 0;
+                        while($a = $q->fetch_assoc()){
+                            ?>
+                            <tr>
+                                <td><?=$a['name'];?>&nbsp;<a href="javascript:void(0);" onclick="delItem('<?=$a['id'];?>')"><i class="bi bi-trash3"></i></a></td>
+                                <td align="right"><?=$a['money'];?>  บ.</td>
+                            </tr>
+                            <?php
+                            $total += $a['money'];
+                        }
+                        ?>
+                        <tr>
+                            <td><strong>รวม</strong></td>
+                            <td align="right" colspan="2"><?=number_format($total);?> บ.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <?php
+            }else{
+                ?>
+                <div class="alert alert-warning" role="alert">ไม่พบข้อมูล</div>
+                <?php
+            }
+            ?>
+        </div>
     </div>
     <script>
         function displayDate() {
@@ -65,6 +129,7 @@
                     title: 'Oops...',
                     text: 'กรุณากรอกข้อมูลให้ครบถ้วน!',
                 });
+
             }else if( isNaN(money) ){
                 Swal.fire({
                     icon: 'error',
@@ -77,50 +142,64 @@
             }else{
 
                 const form = document.querySelector("#formInput");
-                // console.log(form);
-
                 var formData = new FormData(form);
-                // console.log(formData);
-                // return false;
-
                 sendPost(formData).then((res)=>{
-                    console.log(res);
-
-                });
-            }
-            /*
-            if (money === '' || group === '') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน!',
-                });
-            } else {
-                var formData = new FormData(this);
-                formData.append('action', 'save');
-                fetch('save.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
+                    if (res.status === 200) {
                         Swal.fire({
                             icon: 'success',
                             title: 'สำเร็จ!',
-                            text: data.message,
+                            text: res.message,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
                         });
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Oops...',
-                            text: data.message,
+                            text: res.message,
                         });
                     }
-                })
-                .catch(error => console.error('Error:', error));
+                });
             }
-            */
+        }
+
+        async function delItem(id){
+            Swal.fire({
+                title: "แน่ใจว่าจะลบ?",
+                showCancelButton: true,
+                cancelButtonText: "ยกเลิก",
+                confirmButtonColor: "#d33",
+                confirmButtonText: "ยืนยันการลบ"
+            }).then((result)=>{
+                if(result.isConfirmed){
+
+                    let formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('action', 'delItem');
+
+                    sendPost(formData).then((res)=>{
+                        if (res.status === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'สำเร็จ!',
+                                text: res.message,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: res.message,
+                            });
+                        }
+                    });
+                }
+            });
         }
 
         async function sendPost(formData){
