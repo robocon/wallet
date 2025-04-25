@@ -15,7 +15,7 @@ if($action==='saveItem'){
     }
 
     $sql = sprintf("INSERT INTO `money` (`id`, `money`, `detail`, `group_id`, `date`, `time`, `add_time`, `edit_time`) 
-    VALUES (NULL, '%s', '%s', '%s', '%s', NOW(), NOW())", 
+    VALUES (NULL, '%s', '%s', '%s', '%s', '%s', NOW(), NOW())", 
         $dbi->real_escape_string($money),
         $dbi->real_escape_string($detail),
         $dbi->real_escape_string($group),

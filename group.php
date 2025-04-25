@@ -61,7 +61,7 @@ include_once 'config.php';
                         Swal.fire({
                             icon: 'success',
                             title: 'เรียบร้อย',
-                            text: res.message,
+                            text: res.message
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 location.reload();

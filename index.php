@@ -73,8 +73,8 @@ include_once 'config.php';
             <h3>รายการวันนี้</h3>
             <?php
             $currentDate = date('Y-m-d');
-            $sql = "SELECT a.`id`,a.`money`,b.`name` FROM 
-            (SELECT `id`,`money`,`group_id` FROM `money` WHERE `date` = '$currentDate' ORDER BY `id` DESC ) AS a 
+            $sql = "SELECT a.`id`,a.`money`,a.`detail`,b.`name` FROM 
+            (SELECT `id`,`money`,`detail`,`group_id` FROM `money` WHERE `date` = '$currentDate' ORDER BY `id` DESC ) AS a 
             LEFT JOIN `groups` AS b ON a.`group_id` = b.`id` ";
             $q = $dbi->query($sql);
             if($q->num_rows > 0){
@@ -84,9 +84,15 @@ include_once 'config.php';
                         <?php
                         $total = 0;
                         while($a = $q->fetch_assoc()){
+                            $detail = '';
+                            if(!empty($a['detail'])){
+                                $detail = '- '.$a['detail'];
+                            }
                             ?>
                             <tr>
-                                <td><?=$a['name'];?>&nbsp;<a href="javascript:void(0);" onclick="delItem('<?=$a['id'];?>')"><i class="bi bi-trash3"></i></a></td>
+                                <td>
+                                    <a href="javascript:void(0);"><?=$a['name'];?></a>&nbsp;<?=$detail;?>&nbsp;<a href="javascript:void(0);" onclick="delItem('<?=$a['id'];?>')"><i class="bi bi-trash3"></i></a>
+                                </td>
                                 <td align="right"><?=$a['money'];?>  บ.</td>
                             </tr>
                             <?php
