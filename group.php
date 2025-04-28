@@ -31,8 +31,10 @@ include_once 'config.php';
                         <td>
                             <a href="javascript:void(0);" onclick="editGroup('<?=$row['id'];?>','<?=$row['name'];?>')"><?=$row['name'];?></a>
                         </td>
+                        <td width="5%"><a href="javascript:void(0);"><i class="bi bi-arrow-down-circle"></i></a></td>
+                        <td width="5%"><a href="javascript:void(0);"><i class="bi bi-arrow-up-circle"></i></a></td>
                         <td width="5%">
-                            <a href="javascript:void(0);" onclick="delGroupBtn('<?=$row['id'];?>')">🗑️</a>
+                            <a href="javascript:void(0);" onclick="delGroupBtn('<?=$row['id'];?>')"><i class="bi bi-trash3"></i></a>
                         </td>
                     </tr>
                     <?php

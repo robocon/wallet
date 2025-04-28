@@ -23,7 +23,7 @@ include_once 'config.php';
         <form action="javascript:void(0);" method="post" id="formInput" class="mb-5">
             <div class="mb-3">
                 <label for="moneyInput" class="form-label">เงิน</label>
-                <input type="number" class="form-control" id="moneyInput" name="money" placeholder="99.99">
+                <input type="number" class="form-control" id="moneyInput" name="money" placeholder="99.99" inputmode="numeric">
             </div>
             <div class="mb-3">
                 <input type="text" class="form-control" id="detailInput" name="detail" placeholder="รายละเอียด">
