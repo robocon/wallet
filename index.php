@@ -30,7 +30,7 @@ include_once 'config.php';
             </div>
             <div class="mb-3">
             <?php
-            $sql = "SELECT `id`,`name` FROM `groups` WHERE `status` = '1' ORDER BY `id` ASC";
+            $sql = "SELECT `id`,`name` FROM `groups` WHERE `status` = '1' ORDER BY `sort` ASC";
             $q = $dbi->query($sql);
             if($q->num_rows > 0){
                 ?>

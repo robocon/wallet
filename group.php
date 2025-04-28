@@ -1,5 +1,34 @@
 <?php
 include_once 'config.php';
+
+$action = sprintf("%s", $_GET['action'] ?? '');
+if($action=="move"){
+
+    $do = sprintf("%s", $_GET['do']);
+    $sort = sprintf("%s", $_GET['sort']);
+    $id = sprintf("%s", $_GET['id']);
+
+    if($do==="add"){
+        $newSort = $sort + 1;
+        
+    }else if($do==="minus"){
+        $newSort = $sort - 1;
+    }
+
+    // อัพเดทปลายทางก่อน โดยให้ค่า sort เป็น ค่าเดิมของ id ปัจจุบัน
+    $dbi->query(
+        sprintf("UPDATE `groups` SET `sort` = '$sort' WHERE `sort` = '$newSort'; ", 
+        $dbi->real_escape_string($sort), 
+        $dbi->real_escape_string($newSort)
+        )
+    );
+
+    // จากนั้นค่อยอัพเดท id ปัจจุบันให้เป็นค่าใหม่
+    $dbi->query("UPDATE `groups` SET `sort` = '$newSort' WHERE `id` = '$id'; ");
+    
+    header("Location: group.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,27 +46,52 @@ include_once 'config.php';
     <div class="container" style="margin-top:5em;">
         <div class="mb-3" style="display: flex; justify-content: space-between;">
             <h3>จัดการกลุ่ม</h3>
-            <a href="javascript:void(0);" class="btn btn-primary" onclick="addFormGroup()">เพิ่ม ➕</a>
+            <a href="javascript:void(0);" class="btn btn-primary" onclick="addFormGroup()">เพิ่ม <i class="bi bi-plus-lg"></i></a>
         </div>
         <?php
-        $q = $dbi->query("SELECT * FROM `groups` WHERE `status` = 1 ORDER BY `id` ASC");
+        $q = $dbi->query("SELECT * FROM `groups` WHERE `status` = '1' ORDER BY `sort` ASC");
+        $rows = $q->num_rows;
         if($q->num_rows > 0){
             ?>
             <table class="table">
                 <?php
+                $i = 1;
                 while($row = $q->fetch_assoc()){
                     ?>
                     <tr>
                         <td>
                             <a href="javascript:void(0);" onclick="editGroup('<?=$row['id'];?>','<?=$row['name'];?>')"><?=$row['name'];?></a>
                         </td>
-                        <td width="5%"><a href="javascript:void(0);"><i class="bi bi-arrow-down-circle"></i></a></td>
-                        <td width="5%"><a href="javascript:void(0);"><i class="bi bi-arrow-up-circle"></i></a></td>
+                        <td width="5%">
+                            <?php
+                            // MOVE DOWN
+                            // ถ้าเป็นตัวแรก และ ไม่เท่ากับrowsสุดท้าย
+                            if($i>=1 && $i!=$rows){
+                                /*onclick="moveItem('add', '<?=$row['sort'];?>')"*/
+                                ?>
+                                <a href="group.php?action=move&do=add&sort=<?=$row['sort'];?>&id=<?=$row['id'];?>" ><i class="bi bi-arrow-down-circle"></i></a>
+                                <?php
+                            }
+                            ?>
+                        </td>
+                        <td width="5%">
+                            <?php
+                            // MOVE UP
+                            // ถ้า i เท่ากับตัวสุดท้าย หรือ ( i น้อยกว่าหรือเท่ากับ rows และ ไม่เท่ากับตัวแรก )
+                            if( $i==$rows || ($i<=$rows && $i!=1) ){
+                                /*onclick="moveItem('minus', '<?=$row['sort'];?>')"*/
+                                ?>
+                                <a href="group.php?action=move&do=minus&sort=<?=$row['sort'];?>&id=<?=$row['id'];?>" ><i class="bi bi-arrow-up-circle"></i></a>
+                                <?php
+                            }
+                            ?>
+                        </td>
                         <td width="5%">
                             <a href="javascript:void(0);" onclick="delGroupBtn('<?=$row['id'];?>')"><i class="bi bi-trash3"></i></a>
                         </td>
                     </tr>
                     <?php
+                    $i++;
                 }
                 ?>
             </table>
@@ -50,6 +104,8 @@ include_once 'config.php';
         ?>
     </div>
     <script>
+
+
         async function addFormGroup(){
             const name = await loadForm();
             if (name!==undefined) {
@@ -174,6 +230,14 @@ include_once 'config.php';
                     });
                     
                 }
+            });
+        }
+
+        async function errorAlert(){
+            return await Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong!',
             });
         }
     </script>
