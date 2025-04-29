@@ -14,11 +14,6 @@ include_once 'config.php';
 </head>
 <body>
     <?php include 'nav.php'; ?>
-    <style>
-        label:hover{
-            cursor: pointer;
-        }
-    </style>
     <div class="container" style="margin-top:5em;">
         <form action="javascript:void(0);" method="post" id="formInput" class="mb-5">
             <div class="mb-3">

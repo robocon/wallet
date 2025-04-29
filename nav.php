@@ -42,3 +42,8 @@
     </div>
   </div>
 </nav>
+<style>
+    label:hover{
+        cursor: pointer;
+    }
+</style>

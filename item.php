@@ -21,14 +21,14 @@ include_once 'config.php';
         <div>
             <form action="item.php" method="post" class="mb-5">
                 <div class="mb-3">
-                    <input type="date" class="form-control" name="date" id="dateInput" placeholder="วันที่">
+                    <input type="date" class="form-control" name="dateStart" id="dateInput" placeholder="วันที่">
                 </div>
                 <div class="mb-3">
-                    <input class="form-check-input" type="checkbox" value="" id="checkDefault" onclick="displayDate()">
+                    <input class="form-check-input" type="checkbox" id="checkDefault" onclick="displayDate()">
                     <label class="form-check-label" for="checkDefault">ถึงวันที่</label>
                 </div>
-                <div class="mb-3" style="display:none;">
-                    <input type="date" class="form-control" name="date" id="dateInput" placeholder="ถึงวันที่">
+                <div class="mb-3" style="display:none;" id="dateInputContainer">
+                    <input type="date" class="form-control" name="dateEnd" id="dateInput" placeholder="ถึงวันที่">
                 </div>
                 <div class="mb-3 d-grid gap-2">
                     <button type="submit" class="btn btn-primary">ค้นหา</button>
@@ -40,12 +40,20 @@ include_once 'config.php';
         $defLastTime = strtotime('-7 days');
 
         $currentDate = date('Y-m-d',$defLastTime);
+
+        $dateStart = $_POST['dateStart'] ?? '';
+        $dateEnd = $_POST['dateEnd'] ?? '';
+        if(!empty($dateStart) && !empty($dateEnd)){
+            $whereDate = "`date` >= '$dateStart' AND `date` <= '$dateEnd'";
+        }else{
+            $whereDate = "`date` >= '$currentDate'";
+        }
+
         $sql = "SELECT a.`date`,a.`id`,a.`money`,a.`detail`,b.`name`,c.`sum`,c.`count` FROM 
-        (SELECT `id`,`money`,`detail`,`group_id`,`date` FROM `money` WHERE `date` >= '$currentDate' ORDER BY `id` DESC ) AS a 
+        (SELECT `id`,`money`,`detail`,`group_id`,`date` FROM `money` WHERE $whereDate ORDER BY `id` DESC ) AS a 
         LEFT JOIN `groups` AS b ON a.`group_id` = b.`id` 
-        LEFT JOIN (SELECT `date`,SUM(`money`) AS `sum`, COUNT(`id`) AS `count` FROM `money` WHERE `date` >= '$currentDate' GROUP BY `date`) AS c ON a.`date` = c.`date`
+        LEFT JOIN (SELECT `date`,SUM(`money`) AS `sum`, COUNT(`id`) AS `count` FROM `money` WHERE $whereDate GROUP BY `date`) AS c ON a.`date` = c.`date`
         ORDER BY a.`date` DESC";
-        
         $q = $dbi->query($sql);
         $rows = $q->num_rows;
         if($rows > 0){
@@ -113,7 +121,15 @@ include_once 'config.php';
         ?>
     </div>
     <script>
-        
+        function displayDate() {
+            var checkBox = document.getElementById("checkDefault");
+            var dateInput = document.getElementById("dateInputContainer");
+            if (checkBox.checked == true){
+                dateInput.style.display = "";
+            } else {
+                dateInput.style.display = "none";
+            }
+        }
     </script>
 </body>
 </html>
