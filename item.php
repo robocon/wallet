@@ -45,6 +45,8 @@ include_once 'config.php';
         $dateEnd = $_POST['dateEnd'] ?? '';
         if(!empty($dateStart) && !empty($dateEnd)){
             $whereDate = "`date` >= '$dateStart' AND `date` <= '$dateEnd'";
+        }if(!empty($dateStart) && empty($dateEnd)){
+            $whereDate = "`date` = '$dateStart' ";
         }else{
             $whereDate = "`date` >= '$currentDate'";
         }
@@ -130,6 +132,53 @@ include_once 'config.php';
                 dateInput.style.display = "none";
             }
         }
+
+        async function delItem(id){
+            Swal.fire({
+                title: "แน่ใจว่าจะลบ?",
+                showCancelButton: true,
+                cancelButtonText: "ยกเลิก",
+                confirmButtonColor: "#d33",
+                confirmButtonText: "ยืนยันการลบ"
+            }).then((result)=>{
+                if(result.isConfirmed){
+
+                    let formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('action', 'delItem');
+
+                    sendPost(formData).then((res)=>{
+                        if (res.status === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'สำเร็จ!',
+                                text: res.message,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: res.message,
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        async function sendPost(formData){
+            const response = await fetch('save.php', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            return data;
+        }
+
     </script>
 </body>
 </html>

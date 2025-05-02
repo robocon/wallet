@@ -195,7 +195,7 @@ if($action=="move"){
             return data;
         }
 
-        function delGroupBtn(id){
+        async function delGroupBtn(id){
             Swal.fire({
                 title: "แน่ใจว่าจะลบ?",
                 showCancelButton: true,
@@ -221,11 +221,7 @@ if($action=="move"){
                                 }
                             });
                         }else{
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: res.message,
-                            });
+                            errorAlert(res.message);
                         }
                     });
                     
@@ -233,11 +229,11 @@ if($action=="move"){
             });
         }
 
-        async function errorAlert(){
+        async function errorAlert(errorText){
             return await Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
-                text: 'Something went wrong!',
+                text: errorText,
             });
         }
     </script>

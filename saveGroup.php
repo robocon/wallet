@@ -5,9 +5,19 @@ $action = sprintf($_POST['action']);
 if ($action==='saveGroup') {
     $name = $_POST['name'];
 
-    $sql = sprintf("INSERT INTO `groups` (`id`, `name`, `parent`, `status`, `add_time`, `edit_time`) 
-    VALUES (NULL, '%s', NULL, '1', NOW(), NOW());",
-        $dbi->real_escape_string($name)
+    $setSort = 1;
+    $sql = "SELECT `sort` FROM `groups` ORDER BY `sort` DESC LIMIT 1";
+    $q = $dbi->query($sql);
+    if($q->num_rows > 0){
+        $a = $q->fetch_assoc();
+        $setSort = $a['sort'] + 1;
+    }
+    
+
+    $sql = sprintf("INSERT INTO `groups` (`id`, `name`, `parent`, `status`, `add_time`, `edit_time`,`sort`) 
+    VALUES (NULL, '%s', NULL, '1', NOW(), NOW(), '%s');",
+        $dbi->real_escape_string($name),
+        $dbi->real_escape_string($setSort)
     );
 
     $q = false;
