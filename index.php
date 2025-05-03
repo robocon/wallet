@@ -1,4 +1,7 @@
 <?php
+if(!is_file('config.php')){
+    die('Please create config.php file from config.example.php first!');
+}
 include_once 'config.php';
 ?>
 <!DOCTYPE html>
