@@ -1,13 +1,16 @@
 <?php
+session_start();
 define('HOST', 'HOST_NAME');
 define('PORT', 'PORT');
 define('DB', 'DATABASE_NAME');
 define('USER', 'DATABASE_USER');
 define('PASS', 'DATABASE_PASSWORD');
 
-$dbi = new mysqli(HOST, USER, PASS, DB, PORT);
-if ($dbi->connect_error) {
-    die("Connection failed: " . $dbi->connect_error);
+try{
+    $dbi = new mysqli(HOST, USER, PASS, DB, PORT);
+} catch (Exception $e) {
+    echo "Connection failed: ".$e->getMessage()." ไม่พบฐานข้อมูล ".DB;
+    exit;
 }
 $dbi->query("SET NAMES utf8mb4");
 
@@ -16,3 +19,5 @@ function dump($t){
     print_r($t);
     echo "</pre>";
 }
+
+include_once 'functions.php';
