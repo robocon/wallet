@@ -21,7 +21,7 @@ include_once 'config.php';
         <form action="javascript:void(0);" method="post" id="formInput" class="mb-5">
             <div class="mb-3">
                 <label for="moneyInput" class="form-label">เงิน</label>
-                <input type="number" class="form-control" id="moneyInput" name="money" placeholder="99.99" inputmode="numeric">
+                <input type="text" class="form-control" id="moneyInput" name="money" placeholder="99.99" inputmode="decimal">
             </div>
             <div class="mb-3">
                 <input type="text" class="form-control" id="detailInput" name="detail" placeholder="รายละเอียด">
@@ -101,7 +101,7 @@ include_once 'config.php';
                         ?>
                         <tr>
                             <td><strong>รวม</strong></td>
-                            <td align="right" colspan="2"><?=number_format($total);?> บ.</td>
+                            <td align="right" colspan="2"><?=number_format($total,2);?> บ.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -140,7 +140,7 @@ include_once 'config.php';
             cancelButtonText: "ยกเลิก",
             html: `
             <div>
-                <input id="editMoney" type="number" class="swal2-input" value="${data.money}">
+                <input id="editMoney" type="text" class="swal2-input" inputmode="decimal" value="${data.money}">
                 <input id="editDetail" type="text" class="swal2-input" value="${data.detail}">
                 <select id="editSelect" class="swal2-input">${selectOption}</select>
                 <input id="editDate" type="date" class="swal2-input" value="${data.date}">

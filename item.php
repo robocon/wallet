@@ -99,7 +99,7 @@ include_once 'config.php';
                             
                                 <tr>
                                     <td><strong>รวม</strong></td>
-                                    <td align="right"><?=number_format($a['sum']);?> บ.</td>
+                                    <td align="right"><?=number_format($a['sum'],2);?> บ.</td>
                                 </tr>
                                 
                             <?php
