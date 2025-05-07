@@ -30,6 +30,7 @@ include_once 'config.php';
             <?php
             $sql = "SELECT `id`,`name` FROM `groups` WHERE `status` = '1' ORDER BY `sort` ASC";
             $q = $dbi->query($sql);
+            $selectItems = ''; // <<-- for js
             if($q->num_rows > 0){
                 ?>
                 <label for="moneyInput" class="form-label">กลุ่ม</label>
@@ -37,6 +38,7 @@ include_once 'config.php';
                     <option value="">เลือกกลุ่ม</option>
                     <?php
                     while($a = $q->fetch_assoc()){
+                        $selectItems .= '<option value="'.$a['id'].'">'.$a['name'].'</option>';
                         ?><option value="<?=$a['id'];?>"><?=$a['name'];?></option><?php
                     }
                     ?>
@@ -89,7 +91,7 @@ include_once 'config.php';
                             ?>
                             <tr>
                                 <td>
-                                    <a href="javascript:void(0);"><?=$a['name'];?></a>&nbsp;<?=$detail;?>&nbsp;<a href="javascript:void(0);" onclick="delItem('<?=$a['id'];?>')"><i class="bi bi-trash3"></i></a>
+                                    <a href="javascript:void(0);" onclick="editItem(<?=$a['id'];?>)"><?=$a['name'];?></a>&nbsp;<?=$detail;?>&nbsp;<a href="javascript:void(0);" onclick="delItem('<?=$a['id'];?>')"><i class="bi bi-trash3"></i></a>
                                 </td>
                                 <td align="right"><?=$a['money'];?>  บ.</td>
                             </tr>
@@ -113,6 +115,79 @@ include_once 'config.php';
         </div>
     </div>
     <script>
+
+        async function editItem(id){
+            let res = await loadItem(id);
+            if(res.status===200){
+                loadForm(res.data);
+            }else{
+                showError(res.message);
+            }
+        }
+
+        async function loadItem(id){
+            let formData = new FormData();
+            formData.append('id', id);
+            formData.append('action', 'loadItem');
+            let data = await sendPost(formData);
+            return data;
+        }
+
+        async function loadForm(data){
+            const selectOption = '<?=$selectItems;?>';
+            const { value: formValues } = await Swal.fire({
+            showCancelButton: true,
+            cancelButtonText: "ยกเลิก",
+            html: `
+            <div>
+                <input id="editMoney" type="number" class="swal2-input" value="${data.money}">
+                <input id="editDetail" type="text" class="swal2-input" value="${data.detail}">
+                <select id="editSelect" class="swal2-input">${selectOption}</select>
+                <input id="editDate" type="date" class="swal2-input" value="${data.date}">
+                <input id="editTime" type="time" class="swal2-input" value="${data.time}">
+                <input id="itemId" type="hidden" value="${data.id}"
+            </div> 
+            `,
+            focusConfirm: false,
+            preConfirm: () => {
+                return [
+                    document.getElementById("editMoney").value,
+                    document.getElementById("editDetail").value,
+                    document.getElementById("editSelect").value,
+                    document.getElementById("editDate").value,
+                    document.getElementById("editTime").value,
+                    document.getElementById("itemId").value
+                ];
+            }
+            });
+            if (formValues) {
+                let formData = new FormData();
+                formData.append('money', formValues[0]);
+                formData.append('detail', formValues[1]);
+                formData.append('group_id', formValues[2]);
+                formData.append('date', formValues[3]);
+                formData.append('time', formValues[4]);
+                formData.append('id', formValues[5]);
+                formData.append('action', 'updateItem');
+                
+                await sendPost(formData).then((res)=>{
+                    if (res.status === 200) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ!',
+                            text: res.message,
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        });
+                    } else {
+                        showError(res.message);
+                    }
+                });
+            }
+        }
+
         function displayDate() {
             var checkBox = document.getElementById("checkDefault");
             var dateInput = document.getElementById("dateInputContainer");
@@ -128,20 +203,12 @@ include_once 'config.php';
             var group = document.getElementById('groupSelect').value;
             
             if( money <= 0 || group === '' ){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'กรุณากรอกข้อมูลให้ครบถ้วน!',
-                });
+                
+                showError('กรุณากรอกข้อมูลให้ครบถ้วน');
 
             }else if( isNaN(money) ){
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'ใส่จำนวนเงินเป็นตัวเลข!',
-                }).then(() => {
-                    document.getElementById('moneyInput').focus();
-                });
+                
+                showError('ใส่จำนวนเงินเป็นตัวเลข!');
                 
             }else{
 
@@ -159,11 +226,7 @@ include_once 'config.php';
                             }
                         });
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: res.message,
-                        });
+                        showError(res.message);
                     }
                 });
             }
@@ -195,11 +258,7 @@ include_once 'config.php';
                                 }
                             });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Oops...',
-                                text: res.message,
-                            });
+                            showError(res.message);
                         }
                     });
                 }
@@ -213,6 +272,14 @@ include_once 'config.php';
             });
             const data = await response.json();
             return data;
+        }
+
+        async function showError(msg){
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: msg
+            });
         }
     </script>
 </body>
